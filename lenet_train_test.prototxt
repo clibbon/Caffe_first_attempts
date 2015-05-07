@@ -1,0 +1,150 @@
+# Start by giving the network a name
+name: "LeNet"
+
+# Writing in the data layer
+layers {
+    name: "mnist"
+    type: DATA
+    data_param {
+        source: "mnist_train_lmdb"
+        backend: LMDB
+        batch_size: 64
+        scale: 0.00390625
+    }
+    top: "data"
+    top: "label"
+}
+
+# The first convolution layer
+layers {
+    name: "conv1"
+    type: CONVOLUTION
+    blobs_lr: 1.
+    blobs_lr: 2.
+    convolution_param {
+        num_output: 20
+        kernelsize: 5
+        stride: 1
+        weight_filler {
+            type: "xavier"
+        }
+        bias_filler {
+            type: "constant"
+        }
+    }  
+    bottom: "data"
+    top: "conv1"
+}
+
+# Xavier says to automatically fill in the weights based on the 
+# numbers of inputs and output neurons. blobs_lr are learning rates
+
+layers {
+    name: "pool1"
+    type: POOLING
+    pooling_param {
+        kernel_size: 2
+        stride: 2
+        pool: MAX
+    }
+    bottom: "conv1"
+    top: "pool1"
+}
+
+# Finds the max in a 5*5 square
+
+# Second convolutional layer
+}
+layer {
+  name: "conv2"
+  type: "Convolution"
+  bottom: "pool1"
+  top: "conv2"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 50
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+
+layer {
+  name: "pool2"
+  type: "Pooling"
+  bottom: "conv2"
+  top: "pool2"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2
+    stride: 2
+  }
+}
+
+# Inner product layer. This is a fully connected layer, 
+# for some reason called ip. 
+layer {
+  name: "ip1"
+  type: "InnerProduct"
+  bottom: "pool2"
+  top: "ip1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }
+  inner_product_param {
+    num_output: 500
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+
+# ReLu layer is made in place. Done by giving top and bottom blobs the
+# same name - only for this layer type
+layers {
+  name: "relu1"
+  type: RELU
+  bottom: "ip1"
+  top: "ip1"
+}
+
+layers {
+  name: "ip2"
+  type: INNER_PRODUCT
+  blobs_lr: 1.
+  blobs_lr: 2.
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+  bottom: "ip1"
+  top: "ip2"
+}
+
+layers {
+  name: "loss"
+  type: SOFTMAX_LOSS
+  bottom: "ip2"
+  bottom: "label"
+}
