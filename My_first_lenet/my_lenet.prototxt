@@ -1,0 +1,155 @@
+# We start by giving the network a name
+name: "My_LeNet"
+
+# The first layer is the incoming data
+layer {
+  name: "mnist"
+  type: "Data"
+  data_param {
+    source: "mnist_train_lmdb"
+    backend: LMDB
+    batch_size: 64
+    scale: 0.00390625
+  }
+  top: "data"
+  top: "label"
+}
+
+# Convolutional layer
+layer {
+  name: "conv1"
+  type: "Convolution"
+  bottom: "data"
+  top: "conv1"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }          
+  convolution_param {
+    num_output: 20     
+    kernel_size: 5    
+    stride: 1         
+    weight_filler {
+      type: "xavier"       
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+
+# Subsampling layer
+layer {
+  name: "pool1"
+  type: "Pooling"
+  bottom: "conv1"
+  top: "pool1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2 
+    stride: 2    
+  }
+}
+
+# More convolution
+layer {
+  name: "conv2"
+  type: "Convolution"
+  bottom: "pool1"
+  top: "conv2"
+  param {   # A learning weight for the parameters
+    lr_mult: 1
+  }
+  param {  # Guess it knows the second learning rate is for the biases
+    lr_mult: 2
+  }
+  convolution_param {
+    num_output: 16     # learn 16 filters
+    kernel_size: 5    # each filter is 5x5
+    stride: 1          # step 1 pixels between each filter application
+    weight_filler {
+      type: "xavier" # initialize the filters from a Gaussian
+    }
+    bias_filler {
+      type: "constant" # initialize the biases to zero (0)
+    }
+  }
+}
+
+# Subsampling layer
+layer {
+  name: "pool2"
+  type: "Pooling"
+  bottom: "conv2"
+  top: "pool2"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2 
+    stride: 2    
+  }
+}
+
+# Fully connected layer
+layer {
+  name: "ip1"
+  type: "InnerProduct"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  } 
+  inner_product_param {
+    num_output: 84
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+  bottom: "pool2"
+  top: "ip1"
+}
+
+# Rectified linear layer. Note by naming top and bottom the same we achieve this layer in place
+layer {
+  name: "relu1"
+  type: "ReLU"
+  bottom: "ip1"
+  top: "ip1"
+}
+
+# Fully connected layer the second
+layer {
+  name: "ip2"
+  type: "InnerProduct"
+  param {
+    lr_mult: 1
+  }
+  param {
+    lr_mult: 2
+  }   
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+  bottom: "ip1"
+  top: "ip2"
+}
+
+# And the softmax loss layer
+layer {
+  name: "loss"
+  type: "SoftmaxWithLoss"
+  bottom: "ip2"
+  bottom: "label"
+  top: "loss"
+}

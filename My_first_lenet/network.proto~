@@ -1,0 +1,132 @@
+// We start by giving the network a name
+name = "My_LeNet"
+
+// The first layer is the incoming data
+layers {
+  name: "mnist"
+  type: DATA
+  data_param {
+    source: "mnist_train_lmdb"
+    backend: LMDB
+    batch_size: 64
+    scale: 0.00390625
+  }
+  top: "data"
+  top: "label"
+}
+
+// Convolutional layer
+layers {
+  name: "conv1"
+  type: CONVOLUTION
+  bottom: "data"
+  top: "conv1"
+  blobs_lr: 1       
+  blobs_lr: 2         
+  weight_decay: 1    
+  weight_decay: 0     
+  convolution_param {
+    num_output: 6     
+    kernel_size: 5    
+    stride: 4         
+    weight_filler {
+      type: "xavier"       
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+
+// Subsampling layer
+layers {
+  name: "pool1"
+  type: POOLING
+  bottom: "conv1"
+  top: "pool1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2 
+    stride: 2    
+  }
+}
+
+// More convolution
+layers {
+  name: "conv2"
+  type: CONVOLUTION
+  bottom: "pool1"
+  top: "conv2"
+  blobs_lr: 1          // learning rate multiplier for the filters
+  blobs_lr: 2          // learning rate multiplier for the biases
+  weight_decay: 1      // weight decay multiplier for the filters
+  weight_decay: 0      // weight decay multiplier for the biases
+  convolution_param {
+    num_output: 16     // learn 16 filters
+    kernel_size: 5    // each filter is 5x5
+    stride: 1          // step 1 pixels between each filter application
+    weight_filler {
+      type: "xavier" // initialize the filters from a Gaussian
+    }
+    bias_filler {
+      type: "constant" // initialize the biases to zero (0)
+    }
+  }
+}
+
+// Subsampling layer
+layers {
+  name: "pool2"
+  type: POOLING
+  bottom: "conv2"
+  top: "pool2"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2 
+    stride: 2    
+  }
+}
+
+// Fully connected layer
+layers {
+  name: "ip1"
+  type: INNER_PRODUCT
+  blobs_lr: 1          # learning rate multiplier for the filters
+  blobs_lr: 2          # learning rate multiplier for the biases
+  weight_decay: 1      # weight decay multiplier for the filters
+  weight_decay: 0      # weight decay multiplier for the biases
+  inner_product_param {
+    num_output: 84
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+  bottom: "pool2"
+  top: "ip1"
+}
+
+// Fully connected layer the second
+layers {
+  name: "ip1"
+  type: INNER_PRODUCT
+  blobs_lr: 1          # learning rate multiplier for the filters
+  blobs_lr: 2          # learning rate multiplier for the biases
+  weight_decay: 1      # weight decay multiplier for the filters
+  weight_decay: 0      # weight decay multiplier for the biases
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+  bottom: "pool2"
+  top: "ip1"
+}
