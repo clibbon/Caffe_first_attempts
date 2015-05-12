@@ -1,22 +1,10 @@
 # We start by giving the network a name
 name: "My_LeNet"
-
-# The first layer is the incoming data
-layer {
-  name: "mnist"
-  type: "Data"
-  data_param {
-    source: "mnist_train_lmdb"
-    backend: LMDB
-    batch_size: 64
-    scale: 0.00390625
-  }
-  top: "data"
-  top: "label"
-  include {
-    phase: TRAIN
-  }
-}
+input: "data"
+input_dim: 1
+input_dim: 1
+input_dim: 28
+input_dim: 28
 
 # Convolutional layer
 layer {
@@ -148,22 +136,12 @@ layer {
   top: "ip2"
 }
 
-# And the softmax loss layer
-layer {
-  name: "loss"
-  type: "SoftmaxWithLoss"
-  bottom: "ip2"
-  bottom: "label"
-  top: "loss"
-}
-
 # And the probabilities layer for each of the classes
 layer {
-  name: "accuracy"
-  type: "Accuracy"
+  name: "prob"
+  type: "Softmax"
   bottom: "ip2"
-  bottom: "label"
-  top: "accuracy"
+  top: "prob"
   include {
     phase: TEST
   }

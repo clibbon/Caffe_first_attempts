@@ -153,3 +153,15 @@ layer {
   bottom: "label"
   top: "loss"
 }
+
+# And the probabilities layer for each of the classes
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "ip2"
+  bottom: "label"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
+}
