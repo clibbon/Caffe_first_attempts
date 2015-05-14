@@ -13,6 +13,26 @@ layer {
   }
   top: "data"
   top: "label"
+  include {
+    phase: TRAIN
+  }
+}
+
+# The first layer is the incoming data
+layer {
+  name: "mnist"
+  type: "Data"
+  data_param {
+    source: "mnist_test_lmdb"
+    backend: LMDB
+    batch_size: 64
+    scale: 0.00390625
+  }
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
 }
 
 # Convolutional layer

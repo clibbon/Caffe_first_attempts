@@ -13,9 +13,6 @@ layer {
   }
   top: "data"
   top: "label"
-  include {
-    phase: TRAIN
-  }
 }
 
 # Convolutional layer
