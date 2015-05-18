@@ -8,7 +8,7 @@ layers {
     top: "label"
     transform_param {
       mirror: true
-      mean_file: "../HybridCNN/hybridCNN_mean.binaryproto"
+      mean_file: "resized_mean.binaryproto"
     }
     image_data_param {
       source: "singlelabels_train_temp.txt"
@@ -26,10 +26,10 @@ layers {
   top: "label"
   transform_param {
     mirror: true
-    mean_file: "../HybridCNN/hybridCNN_mean.binaryproto"
+    mean_file: "resized_mean.binaryproto"
   }
   image_data_param {
-    source: "singlelabels_val.txt"
+    source: "singlelabels_val_temp.txt"
     batch_size: 50
   }
   include {
@@ -341,7 +341,6 @@ layers {
   name: "prob"
   type: SOFTMAX
   bottom: "fc8_finetune"
-  bottom: "label"
   top: "prob"
 }
 
