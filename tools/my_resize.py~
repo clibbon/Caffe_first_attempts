@@ -1,6 +1,6 @@
 from PIL import Image
 
-def resize(img, box, fit, out):
+def resize(img, box, fit, out=''):
     '''Downsample the image.
     A second version of this was made, which uses resize rather than the 
     thumbnail function, since this this won't upsize images. Function taken
@@ -36,8 +36,8 @@ def resize(img, box, fit, out):
 
     #save it into a file-like object
     if not out:
-	return img
+	img.save(out, "JPEG", quality=75)
     else:
-        img.save(out, "JPEG", quality=75)
+    	return img
     
 #resize
