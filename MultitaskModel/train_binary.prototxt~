@@ -1,9 +1,42 @@
-name: "hybridnet"
-input: "data"
-input_dim: 1
-input_dim: 3
-input_dim: 227
-input_dim: 227
+name: "hybridnet_binary"
+
+layer {
+  name: "data"
+  type: "ImageData"
+  top: "data"
+  top "label"
+  transform_param {
+    mirror: true
+    mean_file: "../HybridCNN/hybridCNN_mean.binaryproto"
+  }
+  image_data_params {
+    source: "singlelabels_train.txt"
+    batch_size: 50
+    new_height: 
+  }
+  include {
+    phase: TRAIN
+  }
+}
+layer {
+  name: "data"
+  type: "ImageData"
+  top: "data"
+  top "label"
+  transform_param {
+    mirror: true
+    mean_file: "../HybridCNN/hybridCNN_mean.binaryproto"
+  }
+  image_data_params {
+    source: "singlelabels_val.txt"
+    batch_size: 50
+    new_height: 
+  }
+  include {
+    phase: TEST
+  }
+}
+
 layers {
   layer {
     name: "conv1"

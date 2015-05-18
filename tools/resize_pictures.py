@@ -16,8 +16,13 @@ from PIL import Image
 from my_resize import resize
 
 filenames = os.listdir(args.source_folder)
+errorRecord = open('MissingImages.txt', 'w')
 
 # Loop through all images and resize
 for filename in filenames:
-    img = Image.open(args.source_folder + '/'+ filename)
-    resize(img, resize_dims, True, args.destination_folder + '/' + filename)
+    try:
+        img = Image.open(args.source_folder + '/'+ filename)
+        resize(img, resize_dims, True, args.destination_folder + '/' + filename)
+    except IOError:
+        errorRecord.write(filename + '\n')
+        print "Could not load image {}".format(filename)

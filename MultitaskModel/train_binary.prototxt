@@ -1,18 +1,42 @@
 name: "hybridnet_binary"
 
-layers {
+layer {
   name: "data"
-  type: IMAGE_DATA
-  source: "singlelabels_test.txt"
-  batch: 50
+  type: "ImageData"
+  top: "data"
+  top "label"
   transform_param {
-    scale
-    mean_file_size: 
-input: "data"
-input_dim: 1
-input_dim: 3
-input_dim: 227
-input_dim: 227
+    mirror: true
+    mean_file: "../HybridCNN/hybridCNN_mean.binaryproto"
+  }
+  image_data_params {
+    source: "singlelabels_train.txt"
+    batch_size: 50
+    new_height: 
+  }
+  include {
+    phase: TRAIN
+  }
+}
+layer {
+  name: "data"
+  type: "ImageData"
+  top: "data"
+  top "label"
+  transform_param {
+    mirror: true
+    mean_file: "../HybridCNN/hybridCNN_mean.binaryproto"
+  }
+  image_data_params {
+    source: "singlelabels_val.txt"
+    batch_size: 50
+    new_height: 
+  }
+  include {
+    phase: TEST
+  }
+}
+
 layers {
   layer {
     name: "conv1"
@@ -304,7 +328,7 @@ layers {
 }
 layers {
   layer {
-    name: "fc8"
+    name: "fc8_finetune"
     type: "innerproduct"
     num_output: 1183
     weight_filler {
@@ -321,13 +345,25 @@ layers {
     weight_decay: 0.
   }
   bottom: "fc7"
-  top: "fc8"
+  top: "fc8_finetune"
 }
 layers {
   layer {
     name: "prob"
     type: "softmax"
   }
-  bottom: "fc8"
+  bottom: "fc8_finetune"
+  bottom: "label"
   top: "prob"
+}
+
+layer {
+  name: "accuracy"
+  type: "Accuracy"
+  bottom: "fc8_finetune"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
+}
 }

@@ -31,7 +31,6 @@ def resize(img, box, fit, out):
     # larger then use the thumbnail as per
     if all([x > box[0] for x in img.size]):
         img.thumbnail(box, Image.ANTIALIAS)
-        print 'I used thumbnail'
     else:
         img = img.resize(box, Image.ANTIALIAS)
 
