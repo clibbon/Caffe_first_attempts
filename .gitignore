@@ -1,2 +1,6 @@
 /My_first_lenet/mnist_train_lmdb
 /My_first_lenet/mnist_test_lmdb
+/HybridCNN/hybridCNN_iter_700000.caffemodel
+/HybridCNN/hybridCNN_mean.binaryproto
+/HybridCNN/places_mean.mat
+/HybridCNN/categoryIndex_hybridCNN.csv
