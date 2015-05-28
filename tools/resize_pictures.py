@@ -20,9 +20,13 @@ errorRecord = open('MissingImages.txt', 'w')
 
 # Loop through all images and resize
 for filename in filenames:
-    try:
-        img = Image.open(args.source_folder + '/'+ filename)
-        resize(img, resize_dims, True, args.destination_folder + '/' + filename)
-    except IOError:
-        errorRecord.write(filename + '\n')
-        print "Could not load image {}".format(filename)
+    # See if the image already exists
+    if not os.path.exists(args.destination_folder + '/' + filename):
+        try:
+            img = Image.open(args.source_folder + '/'+ filename)
+            resize(img, resize_dims, True, args.destination_folder + '/' + filename)
+            # Check that the image was resized properly
+        
+        except IOError:
+            errorRecord.write(filename + '\n')
+            print "Could not load image {}".format(filename)

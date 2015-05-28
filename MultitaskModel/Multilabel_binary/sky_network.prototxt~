@@ -1,0 +1,207 @@
+# We start by giving the network a name
+name: "Binary_sky_LeNet"
+
+# The first layer is the incoming data
+layers {
+  name: "binary_nus"
+  type: IMAGE_DATA
+  data_param {
+    source: "sky_labels_train"
+    batch_size: 64
+    new_height: 227
+    new_width: 227
+    scale: 0.00390625
+  }
+  top: "data"
+  top: "label"
+  include {
+    phase: TRAIN
+  }
+}
+
+# The first layer is the incoming data
+layers {
+  name: "binary_nus"
+  type: IMAGE_DATA
+  data_param {
+    source: "sky_labels_train"
+    batch_size: 64
+    new_height: 227
+    new_width: 227
+    scale: 0.00390625
+  }
+  top: "data"
+  top: "label"
+  include {
+    phase: TEST
+  }
+}
+
+# Convolutional layer
+layers {
+  name: "conv1"
+  type: CONVOLUTION
+  bottom: "data"
+  top: "conv1"
+  blobs_lr: 1.
+  blobs_lr: 2.
+  weight_decay: 1.
+  weight_decay: 0.         
+  convolution_param {
+    num_output: 20     
+    kernel_size: 5    
+    stride: 1         
+    weight_filler {
+      type: "xavier"       
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+}
+
+# Subsampling layer
+layers {
+  name: "pool1"
+  type: POOLING
+  bottom: "conv1"
+  top: "pool1"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2 
+    stride: 2    
+  }
+}
+
+# More convolution
+layers {
+  name: "conv2"
+  type: CONVOLUTION
+  bottom: "pool1"
+  top: "conv2"
+  blobs_lr: 1.
+  blobs_lr: 2.
+  weight_decay: 1.
+  weight_decay: 0.
+  convolution_param {
+    num_output: 16     # learn 16 filters
+    kernel_size: 5    # each filter is 5x5
+    stride: 1          # step 1 pixels between each filter application
+    weight_filler {
+      type: "xavier" # initialize the filters from a Gaussian
+    }
+    bias_filler {
+      type: "constant" # initialize the biases to zero (0)
+    }
+  }
+}
+
+# Subsampling layer
+layers {
+  name: "pool2"
+  type: POOLING
+  bottom: "conv2"
+  top: "pool2"
+  pooling_param {
+    pool: MAX
+    kernel_size: 2 
+    stride: 2    
+  }
+}
+
+# Fully connected layer
+layers {
+  name: "ip1"
+  type: INNER_PRODUCT
+  blobs_lr: 1.
+  blobs_lr: 2.
+  weight_decay: 1.
+  weight_decay: 0.
+  inner_product_param {
+    num_output: 84
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+  bottom: "pool2"
+  top: "ip1"
+}
+
+# Rectified linear layer. Note by naming top and bottom the same we achieve this layer in place
+layers {
+  name: "relu1"
+  type: RELU
+  bottom: "ip1"
+  top: "ip1"
+}
+
+# Fully connected layer the second
+layers {
+  name: "ip2"
+  type: INNER_PRODUCT
+  blobs_lr: 1.
+  blobs_lr: 2.
+  weight_decay: 1.
+  weight_decay: 0. 
+  inner_product_param {
+    num_output: 10
+    weight_filler {
+      type: "xavier"
+    }
+    bias_filler {
+      type: "constant"
+    }
+  }
+  bottom: "ip1"
+  top: "ip2"
+}
+
+# And the softmax loss layer
+layers {
+  name: "loss"
+  type: SOFTMAX_WITH_LOSS
+  bottom: "ip2"
+  bottom: "label"
+  top: "loss"
+}
+
+layers {
+  name: "prob"
+  type: SOFTMAX
+  bottom: "ip2"
+  top: "prob"
+  include {
+    phase: TEST
+  }
+}
+
+# Get the class
+layers {
+  name: "argmax"
+  type: ARGMAX
+  bottom: "prob"
+  top: "argmax"
+}
+
+# Output the results
+layers {
+  name: "hdf5output"
+  bottom: "argmax"
+  type: HDF5_OUTPUT
+  file_name: "skyresults.hdf5"
+}
+
+# And the probabilities layer for each of the classes
+layers {
+  name: "accuracy"
+  type: ACCURACY
+  bottom: "ip2"
+  bottom: "label"
+  top: "accuracy"
+  include {
+    phase: TEST
+  }
+}

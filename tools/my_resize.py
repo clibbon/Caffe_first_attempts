@@ -8,7 +8,7 @@ def resize(img, box, fit, out):
     '''
     #preresize image with factor 2, 4, 8 and fast algorithm
     factor = 1
-    while img.size[0]/factor > 2*box[0] and img.size[1]*2/factor > 2*box[1]:
+    while img.size[0]/factor > 2*box[0] and img.size[1]/factor > 2*box[1]:
         factor *=2
     if factor > 1:
         img.thumbnail((img.size[0]/factor, img.size[1]/factor), Image.NEAREST)
@@ -33,11 +33,14 @@ def resize(img, box, fit, out):
         img.thumbnail(box, Image.ANTIALIAS)
     else:
         img = img.resize(box, Image.ANTIALIAS)
-
     #save it into a file-like object
     if not out:
 	return img
     else:
+        # Check the image size and save it
+        if img.size[0] != box[0] or img.size[1] != box[1]:
+            print "Problem with file - fixing"
+            img = img.resize(box, Image.ANTIALIAS)
         img.save(out, "JPEG", quality=75)
     
 #resize
