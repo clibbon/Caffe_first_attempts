@@ -1,207 +1,471 @@
-# We start by giving the network a name
-name: "Binary_sky_LeNet"
+# Hahaha it's called skynet
+name: "skynet"
 
-# The first layer is the incoming data
 layers {
-  name: "binary_nus"
-  type: IMAGE_DATA
-  data_param {
-    source: "sky_labels_train"
-    batch_size: 64
-    new_height: 227
-    new_width: 227
-    scale: 0.00390625
-  }
   top: "data"
   top: "label"
-  include {
-    phase: TRAIN
-  }
-}
-
-# The first layer is the incoming data
-layers {
-  name: "binary_nus"
+  name: "data"
   type: IMAGE_DATA
-  data_param {
-    source: "sky_labels_train"
-    batch_size: 64
+  image_data_param {
+    source: "temp_train.txt"
     new_height: 227
     new_width: 227
-    scale: 0.00390625
+    batch_size: 64
   }
+  transform_param {
+    mirror: false
+    mean_file: "../../temp/img_mean.npy"
+  }
+  include: { phase: TRAIN }
+}
+layers {
   top: "data"
   top: "label"
-  include {
-    phase: TEST
+  name: "data"
+  type: IMAGE_DATA
+  image_data_param {
+    source: "temp_test.txt"
+    new_height: 227
+    new_width: 227
+    batch_size: 64
   }
+  transform_param {
+    mirror: false
+    mean_file: "../../temp/img_mean.npy"
+  }
+  include: { phase: TEST }
 }
-
-# Convolutional layer
 layers {
-  name: "conv1"
-  type: CONVOLUTION
   bottom: "data"
   top: "conv1"
-  blobs_lr: 1.
-  blobs_lr: 2.
-  weight_decay: 1.
-  weight_decay: 0.         
-  convolution_param {
-    num_output: 20     
-    kernel_size: 5    
-    stride: 1         
-    weight_filler {
-      type: "xavier"       
-    }
-    bias_filler {
-      type: "constant"
-    }
-  }
-}
-
-# Subsampling layer
-layers {
-  name: "pool1"
-  type: POOLING
-  bottom: "conv1"
-  top: "pool1"
-  pooling_param {
-    pool: MAX
-    kernel_size: 2 
-    stride: 2    
-  }
-}
-
-# More convolution
-layers {
-  name: "conv2"
+  name: "conv1"
   type: CONVOLUTION
-  bottom: "pool1"
-  top: "conv2"
-  blobs_lr: 1.
-  blobs_lr: 2.
-  weight_decay: 1.
-  weight_decay: 0.
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
   convolution_param {
-    num_output: 16     # learn 16 filters
-    kernel_size: 5    # each filter is 5x5
-    stride: 1          # step 1 pixels between each filter application
+    num_output: 96
+    kernel_size: 11
+    stride: 4
     weight_filler {
-      type: "xavier" # initialize the filters from a Gaussian
-    }
-    bias_filler {
-      type: "constant" # initialize the biases to zero (0)
-    }
-  }
-}
-
-# Subsampling layer
-layers {
-  name: "pool2"
-  type: POOLING
-  bottom: "conv2"
-  top: "pool2"
-  pooling_param {
-    pool: MAX
-    kernel_size: 2 
-    stride: 2    
-  }
-}
-
-# Fully connected layer
-layers {
-  name: "ip1"
-  type: INNER_PRODUCT
-  blobs_lr: 1.
-  blobs_lr: 2.
-  weight_decay: 1.
-  weight_decay: 0.
-  inner_product_param {
-    num_output: 84
-    weight_filler {
-      type: "xavier"
+      type: "gaussian"
+      mean: 0
+      std: 0.01
     }
     bias_filler {
       type: "constant"
+      value: 0
     }
   }
-  bottom: "pool2"
-  top: "ip1"
 }
-
-# Rectified linear layer. Note by naming top and bottom the same we achieve this layer in place
 layers {
+  bottom: "conv1"
+  top: "conv1"
+  name: "relu0"
+  type: RELU
+}
+layers {
+  bottom: "conv1"
+  top: "cccp1"
+  name: "cccp1"
+  type: CONVOLUTION
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  convolution_param {
+    num_output: 96
+    kernel_size: 1
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      mean: 0
+      std: 0.05
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layers {
+  bottom: "cccp1"
+  top: "cccp1"
   name: "relu1"
   type: RELU
-  bottom: "ip1"
-  top: "ip1"
 }
-
-# Fully connected layer the second
 layers {
-  name: "ip2"
-  type: INNER_PRODUCT
-  blobs_lr: 1.
-  blobs_lr: 2.
-  weight_decay: 1.
-  weight_decay: 0. 
-  inner_product_param {
-    num_output: 10
+  bottom: "cccp1"
+  top: "cccp2"
+  name: "cccp2"
+  type: CONVOLUTION
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  convolution_param {
+    num_output: 96
+    kernel_size: 1
+    stride: 1
     weight_filler {
-      type: "xavier"
+      type: "gaussian"
+      mean: 0
+      std: 0.05
     }
     bias_filler {
       type: "constant"
+      value: 0
     }
   }
-  bottom: "ip1"
-  top: "ip2"
 }
-
-# And the softmax loss layer
 layers {
-  name: "loss"
-  type: SOFTMAX_WITH_LOSS
-  bottom: "ip2"
-  bottom: "label"
-  top: "loss"
+  bottom: "cccp2"
+  top: "cccp2"
+  name: "relu2"
+  type: RELU
 }
-
 layers {
-  name: "prob"
-  type: SOFTMAX
-  bottom: "ip2"
-  top: "prob"
-  include {
-    phase: TEST
+  bottom: "cccp2"
+  top: "pool0"
+  name: "pool0"
+  type: POOLING
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
   }
 }
-
-# Get the class
 layers {
-  name: "argmax"
-  type: ARGMAX
-  bottom: "prob"
-  top: "argmax"
+  bottom: "pool0"
+  top: "conv2"
+  name: "conv2"
+  type: CONVOLUTION
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  convolution_param {
+    num_output: 256
+    pad: 2
+    kernel_size: 5
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      mean: 0
+      std: 0.05
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
 }
-
-# Output the results
 layers {
-  name: "hdf5output"
-  bottom: "argmax"
-  type: HDF5_OUTPUT
-  file_name: "skyresults.hdf5"
+  bottom: "conv2"
+  top: "conv2"
+  name: "relu3"
+  type: RELU
 }
-
-# And the probabilities layer for each of the classes
+layers {
+  bottom: "conv2"
+  top: "cccp3"
+  name: "cccp3"
+  type: CONVOLUTION
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  convolution_param {
+    num_output: 256
+    kernel_size: 1
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      mean: 0
+      std: 0.05
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layers {
+  bottom: "cccp3"
+  top: "cccp3"
+  name: "relu5"
+  type: RELU
+}
+layers {
+  bottom: "cccp3"
+  top: "cccp4"
+  name: "cccp4"
+  type: CONVOLUTION
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  convolution_param {
+    num_output: 256
+    kernel_size: 1
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      mean: 0
+      std: 0.05
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layers {
+  bottom: "cccp4"
+  top: "cccp4"
+  name: "relu6"
+  type: RELU
+}
+layers {
+  bottom: "cccp4"
+  top: "pool2"
+  name: "pool2"
+  type: POOLING
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layers {
+  bottom: "pool2"
+  top: "conv3"
+  name: "conv3"
+  type: CONVOLUTION
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  convolution_param {
+    num_output: 384
+    pad: 1
+    kernel_size: 3
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      mean: 0
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layers {
+  bottom: "conv3"
+  top: "conv3"
+  name: "relu7"
+  type: RELU
+}
+layers {
+  bottom: "conv3"
+  top: "cccp5"
+  name: "cccp5"
+  type: CONVOLUTION
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  convolution_param {
+    num_output: 384
+    kernel_size: 1
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      mean: 0
+      std: 0.05
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layers {
+  bottom: "cccp5"
+  top: "cccp5"
+  name: "relu8"
+  type: RELU
+}
+layers {
+  bottom: "cccp5"
+  top: "cccp6"
+  name: "cccp6"
+  type: CONVOLUTION
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  convolution_param {
+    num_output: 384
+    kernel_size: 1
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      mean: 0
+      std: 0.05
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layers {
+  bottom: "cccp6"
+  top: "cccp6"
+  name: "relu9"
+  type: RELU
+}
+layers {
+  bottom: "cccp6"
+  top: "pool3"
+  name: "pool3"
+  type: POOLING
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layers {
+  bottom: "pool3"
+  top: "pool3"
+  name: "drop"
+  type: DROPOUT
+  dropout_param {
+    dropout_ratio: 0.5
+  }
+}
+layers {
+  bottom: "pool3"
+  top: "conv4"
+  name: "conv4-1024"
+  type: CONVOLUTION
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  convolution_param {
+    num_output: 1024
+    pad: 1
+    kernel_size: 3
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      mean: 0
+      std: 0.05
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layers {
+  bottom: "conv4"
+  top: "conv4"
+  name: "relu10"
+  type: RELU
+}
+layers {
+  bottom: "conv4"
+  top: "cccp7"
+  name: "cccp7-1024"
+  type: CONVOLUTION
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  convolution_param {
+    num_output: 1024
+    kernel_size: 1
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      mean: 0
+      std: 0.05
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layers {
+  bottom: "cccp7"
+  top: "cccp7"
+  name: "relu11"
+  type: RELU
+}
+layers {
+  bottom: "cccp7"
+  top: "cccp8"
+  name: "cccp8-1024"
+  type: CONVOLUTION
+  blobs_lr: 1
+  blobs_lr: 2
+  weight_decay: 1
+  weight_decay: 0
+  convolution_param {
+    num_output: 2
+    kernel_size: 1
+    stride: 1
+    weight_filler {
+      type: "gaussian"
+      mean: 0
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layers {
+  bottom: "cccp8"
+  top: "cccp8"
+  name: "relu12"
+  type: RELU
+}
+layers {
+  bottom: "cccp8"
+  top: "pool4"
+  name: "pool4"
+  type: POOLING
+  pooling_param {
+    pool: AVE
+    kernel_size: 6
+    stride: 1
+  }
+}
 layers {
   name: "accuracy"
   type: ACCURACY
-  bottom: "ip2"
+  bottom: "pool4"
   bottom: "label"
   top: "accuracy"
-  include {
-    phase: TEST
-  }
+  include: { phase: TEST }
 }
+layers {
+  bottom: "pool4"
+  bottom: "label"
+  name: "loss"
+  type: SOFTMAX_LOSS
+  include: { phase: TRAIN }
+}
+
+  
+  

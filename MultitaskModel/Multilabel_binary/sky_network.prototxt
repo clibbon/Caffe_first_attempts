@@ -6,15 +6,15 @@ layers {
   top: "label"
   name: "data"
   type: IMAGE_DATA
-  data_param {
-    source: "sky_labels_train.txt"
-    new_height: 224
-    new_width: 224
+  image_data_param {
+    source: "temp_train.txt"
+    new_height: 227
+    new_width: 227
     batch_size: 64
   }
   transform_param {
-    mirror: true
-    mean_file: "change/this"
+    mirror: false
+    mean_file: "../../temp/img_mean.binaryproto"
   }
   include: { phase: TRAIN }
 }
@@ -23,15 +23,15 @@ layers {
   top: "label"
   name: "data"
   type: IMAGE_DATA
-  data_param {
-    source: "sky_labels_train.txt"
-    new_height: 224
-    new_width: 224
+  image_data_param {
+    source: "temp_test.txt"
+    new_height: 227
+    new_width: 227
     batch_size: 64
   }
   transform_param {
     mirror: false
-    mean_file: "change/this"
+    mean_file: "../../temp/img_mean.binaryproto"
   }
   include: { phase: TEST }
 }
