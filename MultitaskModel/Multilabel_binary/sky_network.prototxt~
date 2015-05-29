@@ -14,7 +14,7 @@ layers {
   }
   transform_param {
     mirror: false
-    mean_file: "../../temp/img_mean.npy"
+    mean_file: "../../temp/img_mean.binaryproto"
   }
   include: { phase: TRAIN }
 }
@@ -31,7 +31,7 @@ layers {
   }
   transform_param {
     mirror: false
-    mean_file: "../../temp/img_mean.npy"
+    mean_file: "../../temp/img_mean.binaryproto"
   }
   include: { phase: TEST }
 }

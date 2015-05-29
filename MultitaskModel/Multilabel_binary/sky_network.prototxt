@@ -8,8 +8,8 @@ layers {
   type: IMAGE_DATA
   image_data_param {
     source: "temp_train.txt"
-    new_height: 227
-    new_width: 227
+    new_height: 256
+    new_width: 256
     batch_size: 64
   }
   transform_param {
@@ -25,8 +25,8 @@ layers {
   type: IMAGE_DATA
   image_data_param {
     source: "temp_test.txt"
-    new_height: 227
-    new_width: 227
+    new_height: 256
+    new_width: 256
     batch_size: 64
   }
   transform_param {
